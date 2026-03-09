@@ -1,16 +1,40 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import axios from 'axios';
 import './App.css'
+import SearchBar from './Components/SearchBar'
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [weather, setWeather] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const API_KEY =import.meta.env.VITE_API_KEY;
+  const API_URL = `http://maps.openweathermap.org/maps/2.0/weather/{op}/{z}/{x}/{y}?appid={API key}`;
+
+  const fetchWeather = async (city) =>{
+    setLoading(true);
+    setError('');
+     try{
+      const url = `${API_URL}?q=${city}& units=metric&appid=${API_KEY}`;
+      const response = await axios.get(url);
+      console.log(response.data);
+      setWeather(response.data);
+    } catch (err) {
+      if (err.response && err.response.status === 404) {
+        setError('City not found. Please try agaon.')
+      } else {
+        setError("An error occurred. Please try again later.")
+      }
+      setWeather(null);
+    }
+  }
 
   return (
     <>
       <div className='min-h-screen flex flex-col items-center justify-center bg-blue-100'>
        <div className='bg-black/90 text-white rounded-lg shadow-lg p-8 max-w-md w-full'>
-         <h1 className='text-3xl font-bold text-center'>Weather App</h1>
+         <h1 className='text-3xl font-bold text-center mb-6'>Weather App</h1>
+         <SearchBar fetchWeather={fetchWeather}/>
        </div>
       </div>
     </>
